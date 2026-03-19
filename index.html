@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Abeka Videos</title>
+    <style>
+        :root {
+            --primary-blue: #0072bc;
+            --light-gray: #f8f9fa;
+            --border-color: #e0e0e0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0; background-color: var(--light-gray);
+            color: #333; line-height: 1.6;
+        }
+
+        /* 1. Thanh Menu Điều Hướng Xanh Dương */
+        nav {
+            background-color: var(--primary-blue);
+            padding: 10px 0; width: 100%;
+            display: flex; justify-content: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        nav a {
+            color: white; 
+            text-decoration: none;
+            padding: 12px 20px; /* Tăng padding để tạo khối header cao hơn */
+            font-weight: bold;
+            font-size: 14px; 
+            text-transform: uppercase;
+            display: inline-block;
+            transition: 0.2s;
+        }
+
+        /* Khi di chuột qua hoặc khi đang được chọn (Active) */
+        nav a:hover, nav a.active { 
+            background-color: #005a96; /* Màu xanh đậm hơn */
+            box-shadow: inset 0 -3px 0 white; /* Thêm gạch chân trắng mờ bên dưới nếu muốn */
+        }
+
+        /* 2. Container chính */
+        .main-content {
+            max-width: 1100px; margin: 20px auto;
+            background: white; padding: 30px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.05);
+            min-height: 80vh;
+        }
+
+        h2 { border-bottom: 2px solid #eee; padding-bottom: 10px; font-size: 22px; }
+
+        /* 3. Lưới bài học (Số) */
+        .lesson-grid {
+            display: flex;
+            flex-wrap: wrap; /* Cho phép tự động xuống dòng khi hết chiều ngang */
+            gap: 12px;       /* Khoảng cách giữa các ô */
+            margin-top: 30px;
+            padding: 10px;
+        }
+        .lesson-num {
+            background: var(--primary-blue);
+            color: white;
+            
+            /* Thay đổi quan trọng: Không cố định width 50px nữa */
+            min-width: 40px; 
+            height: 50px;
+            padding: 0 10px; /* Thêm khoảng trống hai bên chữ */
+            
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            
+            /* Đảm bảo chữ không bị xuống dòng bên trong ô */
+            white-space: nowrap; 
+        }
+        .lesson-num.wide-num {
+            padding: 0 20px;
+        }
+        .lesson-num:hover {
+            background: #333;
+        }
+        .lesson-num.active {
+            background: #ff9800 !important;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        /* 4. Khu vực Video & Skills */
+        .video-section { margin-top: 20px; display: none; text-align: center; }
+        
+        .video-container {
+            width: 100%; background: #000;
+            position: relative; padding-bottom: 56.25%; /* Tỷ lệ 16:9 */
+            height: 0; margin-bottom: 20px;
+        }
+        .video-container iframe {
+            position: absolute; top: 0; left: 0;
+            width: 100%; height: 100%; border: none;
+        }
+
+        /* 5. Nút Kỹ năng (3 cột như ảnh) */
+        .skill-grid {
+            display: grid; grid-template-columns: repeat(3, 1fr);
+            gap: 10px; margin-bottom: 30px;
+        }
+        .skill-btn {
+            background: #eee; border: none; padding: 12px;
+            text-align: left; cursor: pointer; border-radius: 4px;
+            font-size: 14px; transition: 0.2s;
+        }
+        .skill-btn:hover { background: #ddd; }
+        .skill-btn.active { background: var(--primary-blue); color: white; }
+
+        #loading { text-align: center; display: none; padding: 20px; }
+    </style>
+</head>
+<body>
+
+    <nav id="main-nav" style="background-color: #005a96; border-bottom: 1px solid rgba(255,255,255,0.1);">
+        <a href="#" onclick="switchSource('ABEKA')" id="nav-abeka">ABEKA</a>
+        <a href="#" onclick="switchSource('LITTLEFOX')" id="nav-littlefox">LITTLE FOX</a>
+        <a href="#" onclick="switchSource('SINGLESTORY')" id="nav-singlestory">SINGLE STORY</a>
+    </nav>
+
+    <nav id="top-nav"></nav>
+    
+    <div class="main-content">
+        <h2 id="page-title">Welcome to </h2>
+        
+        <div id="loading">Loading...</div>
+
+        <div id="video-area" class="video-section">
+            <h3 id="current-lesson-name" style="text-align: left;">Day ..., Grade ...</h3>
+            <div class="video-container">
+                <div id="player-placeholder"></div>
+            </div>
+            <div class="skill-grid" id="skill-list">
+                </div>
+        </div>
+
+        <div id="lesson-container" class="lesson-grid"></div>
+
+        <div id="class-list" style="margin-top:20px;">
+            <p>The entire lecture series is organized by the date of study:</p>
+            <ul id="class-links"></ul>
+        </div>
+    </div>
+
+    <script>
+    const API_KEY = 'AIzaSyAZrirXYY71uretzRPj4GYObgy0RMbyz1A';
+    // Khai báo ID thư mục cha cho từng nguồn
+    const FOLDER_MAP = {
+        'ABEKA': '1Sv499bc_tnGNxFRjjgP75NXGea4Jszws', // ID hiện tại của bạn
+        'LITTLEFOX': '1DvnU8E1UnJTb69NgGsgfmdgIaxhzEZwt', 
+        'SINGLESTORY': '164u-bdCO_Qm7kv4uMuXpkVqBKfHkoRxs'
+    };
+
+    let currentSource = 'ABEKA'; // Mặc định ban đầu
+
+    // Hàm để chuyển đổi giữa các nguồn
+    async function switchSource(sourceKey) {
+        currentSource = sourceKey;
+        
+        // Cập nhật giao diện nút đang chọn trên main-nav
+        document.querySelectorAll('#main-nav a').forEach(a => a.classList.remove('active'));
+        document.getElementById(`nav-${sourceKey.toLowerCase()}`).classList.add('active');
+
+        // Tải lại danh sách lớp cho nguồn mới
+        loadClasses(FOLDER_MAP[sourceKey]);
+    }
+
+    // 1. Load danh sách lớp lên Menu và Trang chủ
+    async function loadClasses(folderId = FOLDER_MAP['ABEKA']) {
+        showLoading(true);
+        resetUI();
+        
+        try {
+            const url = `https://www.googleapis.com/drive/v3/files?q='${folderId}'+in+parents+and+trashed=false&key=${API_KEY}`;
+            const response = await fetch(url);
+            const data = await response.json();
+            
+            // Sắp xếp theo tên
+            const classes = data.files.sort((a, b) => a.name.localeCompare(b.name, undefined, {numeric: true}));
+
+            const nav = document.getElementById('top-nav');
+            const list = document.getElementById('class-links');
+            
+            nav.innerHTML = ''; // Xóa menu cũ hoàn toàn
+            list.innerHTML = "";
+
+            classes.forEach(c => {
+                const link = document.createElement('a');
+                link.href = "#";
+                link.innerText = c.name;
+                link.onclick = (e) => {
+                    e.preventDefault();
+                    selectClass(c.id, c.name);
+                    updateNavActive(c.name);
+                };
+                nav.appendChild(link);
+
+                list.innerHTML += `<li><a href="#" onclick="selectClass('${c.id}', '${c.name}'); updateNavActive('${c.name}')">${c.name}</a></li>`;
+            });
+            
+            // Tự động đặt tên tiêu đề theo nguồn
+            document.getElementById('page-title').innerText = "Welcome to " + currentSource;
+
+        } catch (e) { console.error(e); }
+        showLoading(false);
+    }
+
+    function updateNavActive(targetText) {
+        const allLinks = document.querySelectorAll('#top-nav a');
+        allLinks.forEach(link => {
+            if (link.innerText.trim().toUpperCase() === targetText.trim().toUpperCase()) {
+                link.classList.add('active');
+            } else {
+                link.classList.remove('active');
+            }
+        });
+    }
+
+    // 2. Khi chọn một lớp -> Hiện lưới số Lesson
+    async function selectClass(id, name) {
+        showLoading(true);
+        stopVideo();
+        updateNavActive(name);
+        document.getElementById('class-list').style.display = 'none';
+        document.getElementById('video-area').style.display = 'none';
+        document.getElementById('page-title').innerText = name + ":";
+        
+        try {
+            // Query lấy tất cả thư mục con nằm trong thư mục Grade hiện tại
+            const url = `https://www.googleapis.com/drive/v3/files?q='${id}'+in+parents+and+mimeType='application/vnd.google-apps.folder'+and+trashed=false&key=${API_KEY}`;
+            const response = await fetch(url);
+            const data = await response.json();
+            
+            // Sắp xếp: Thư mục số (001, 002) lên trước, thư mục chữ (Example) ra sau
+            const lessons = data.files.sort((a, b) => a.name.localeCompare(b.name, undefined, {numeric: true, sensitivity: 'base'}));
+
+            const container = document.getElementById('lesson-container');
+            container.innerHTML = lessons.map((l) => {
+                // Kiểm tra nếu tên thư mục dài hơn 3 ký tự (như "Example"), 
+                // chúng ta sẽ cho ô đó rộng ra một chút bằng CSS inline hoặc class riêng
+                const displayName = l.name;
+                const extraClass = l.name.length > 3 ? 'wide-num' : '';
+
+                return `
+                    <div class="lesson-num ${extraClass}" onclick="selectLesson('${l.id}', '${l.name}', '${name}', this)">
+                        ${displayName}
+                    </div>
+                `;
+            }).join('');
+        } catch (e) { console.error("Fetch lesson Error:", e); }
+        
+        showLoading(false);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // 3. Khi chọn một số Lesson -> Hiện Video & Kỹ năng (3 cột)
+    async function selectLesson(folderId, lessonName, className, element) {
+        showLoading(true);
+        stopVideo();
+        
+        // --- PHẦN XỬ LÝ TRẠNG THÁI ACTIVE CHO Ô SỐ ---
+        if (element) {
+            // Xóa class active ở tất cả các ô lesson-num
+            document.querySelectorAll('.lesson-num').forEach(el => el.classList.remove('active'));
+            // Thêm class active vào ô vừa bấm
+            element.classList.add('active');
+        }
+        // ---------------------------------------------
+
+        const skillList = document.getElementById('skill-list');
+        document.getElementById('current-lesson-name').innerText = `${lessonName}, ${className}`;
+        document.getElementById('video-area').style.display = 'block';
+
+        try {
+            const url = `https://www.googleapis.com/drive/v3/files?q='${folderId}'+in+parents+and+trashed=false&key=${API_KEY}`;
+            const response = await fetch(url);
+            const data = await response.json();
+            const skills = data.files.sort((a, b) => a.name.localeCompare(b.name));
+
+            skillList.innerHTML = skills.map((s, i) => `
+                <button class="skill-btn ${i===0?'active':''}" onclick="playVideo('${s.id}', this)">
+                    ${s.name.split('.')[0]}
+                </button>
+            `).join('');
+
+            if(skills.length > 0) playVideo(skills[0].id);
+
+        } catch (e) { console.error(e); }
+        showLoading(false);
+        
+        // Cuộn nhẹ lên khu vực video để người dùng tập trung học
+        document.getElementById('video-area').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function playVideo(fileId, btn) {
+        if(btn) {
+            document.querySelectorAll('.skill-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+        }
+        
+        const player = document.getElementById('player-placeholder');
+        
+        /**
+         * Thêm ?autoplay=1 vào cuối URL để kích hoạt tự động phát.
+         * Thuộc tính allow="autoplay" cực kỳ quan trọng để trình duyệt cấp quyền.
+         */
+        const videoUrl = `https://www.googleapis.com/drive/v3/files/${fileId}?alt=media&key=${API_KEY}`; 
+        // Lưu ý: Nếu dùng link preview mặc định của Drive:
+        const previewUrl = `https://drive.google.com/file/d/${fileId}/preview?autoplay=1`;
+
+        player.innerHTML = `
+            <iframe 
+                src="${previewUrl}" 
+                allow="autoplay; fullscreen" 
+                allowfullscreen="true">
+            </iframe>`;
+    }
+
+    function showLoading(status) {
+        document.getElementById('loading').style.display = status ? 'block' : 'none';
+    }
+
+    function resetUI() {
+        stopVideo();
+        document.getElementById('class-list').style.display = 'block';
+        document.getElementById('video-area').style.display = 'none';
+        document.getElementById('lesson-container').innerHTML = '';
+        document.getElementById('page-title').innerText = "";
+    }
+    function stopVideo() {
+        const player = document.getElementById('player-placeholder');
+        if (player) {
+            player.innerHTML = ''; // Xóa sạch iframe
+        }
+    }
+
+    loadClasses();
+    switchSource('ABEKA');
+    </script>
+</body>
+</html>
