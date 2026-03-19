@@ -17,6 +17,7 @@
             color: #333; line-height: 1.6;
         }
 
+        
         /* 1. Thanh Menu Điều Hướng Xanh Dương */
         nav {
             background-color: var(--primary-blue);
@@ -305,25 +306,24 @@
 
     function playVideo(fileId, btn) {
         if(btn) {
+            // Xử lý giao diện nút bấm active
             document.querySelectorAll('.skill-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
         }
         
         const player = document.getElementById('player-placeholder');
         
-        /**
-         * Thêm ?autoplay=1 vào cuối URL để kích hoạt tự động phát.
-         * Thuộc tính allow="autoplay" cực kỳ quan trọng để trình duyệt cấp quyền.
-         */
-        const videoUrl = `https://www.googleapis.com/drive/v3/files/${fileId}?alt=media&key=${API_KEY}`; 
-        // Lưu ý: Nếu dùng link preview mặc định của Drive:
-        const previewUrl = `https://drive.google.com/file/d/${fileId}/preview?autoplay=1`;
+        // Sử dụng link preview để nhúng vào iframe
+        // Lưu ý: File trên Drive của bạn PHẢI được share ở chế độ "Anyone with the link can view"
+        const previewUrl = `https://drive.google.com/file/d/${fileId}/preview`;
 
         player.innerHTML = `
             <iframe 
                 src="${previewUrl}" 
-                allow="autoplay; fullscreen" 
-                allowfullscreen="true">
+                width="100%" 
+                height="100%" 
+                allow="autoplay; encrypted-media" 
+                allowfullscreen>
             </iframe>`;
     }
 
