@@ -288,6 +288,8 @@
             const url = `https://www.googleapis.com/drive/v3/files?q='${folderId}'+in+parents+and+trashed=false&key=${API_KEY}`;
             const response = await fetch(url);
             const data = await response.json();
+            // THÊM DÒNG NÀY ĐỂ KIỂM TRA:
+            console.log("Dữ liệu file trong lesson:", data);
             if (!data.files) {
                 console.error("Không tìm thấy file nào!", data);
                 return;
