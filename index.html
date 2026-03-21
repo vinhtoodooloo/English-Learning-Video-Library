@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Englist Learning Videos Library</title>
+    <title>English Learning Videos Library</title>
     <style>
         :root {
             --primary-blue: #0072bc;
@@ -17,8 +17,6 @@
             color: #333; line-height: 1.6;
         }
 
-        
-        /* 1. Thanh Menu Điều Hướng Xanh Dương */
         nav {
             background-color: var(--primary-blue);
             padding: 10px 0; width: 100%;
@@ -28,7 +26,7 @@
         nav a {
             color: white; 
             text-decoration: none;
-            padding: 12px 20px; /* Tăng padding để tạo khối header cao hơn */
+            padding: 12px 20px;
             font-weight: bold;
             font-size: 14px; 
             text-transform: uppercase;
@@ -36,13 +34,11 @@
             transition: 0.2s;
         }
 
-        /* Khi di chuột qua hoặc khi đang được chọn (Active) */
         nav a:hover, nav a.active { 
-            background-color: #005a96; /* Màu xanh đậm hơn */
-            box-shadow: inset 0 -3px 0 white; /* Thêm gạch chân trắng mờ bên dưới nếu muốn */
+            background-color: #005a96; 
+            box-shadow: inset 0 -3px 0 white;
         }
 
-        /* 2. Container chính */
         .main-content {
             max-width: 1100px; margin: 20px auto;
             background: white; padding: 30px;
@@ -50,63 +46,39 @@
             min-height: 80vh;
         }
 
-        h2 { border-bottom: 2px solid #eee; padding-bottom: 10px; font-size: 22px; }
+        h2 { border-bottom: 2px solid #eee; padding-bottom: 10px; font-size: 22px; display: flex; align-items: center; justify-content: space-between; }
+        
+        .back-btn {
+            font-size: 14px; background: #666; color: white; padding: 5px 15px; 
+            border-radius: 4px; cursor: pointer; text-decoration: none;
+        }
 
-        /* 3. Lưới bài học (Số) */
         .lesson-grid {
-            display: flex;
-            flex-wrap: wrap; /* Cho phép tự động xuống dòng khi hết chiều ngang */
-            gap: 12px;       /* Khoảng cách giữa các ô */
-            margin-top: 30px;
-            padding: 10px;
+            display: flex; flex-wrap: wrap; gap: 12px; margin-top: 20px; padding: 10px;
         }
         .lesson-num {
-            background: var(--primary-blue);
-            color: white;
-            
-            /* Thay đổi quan trọng: Không cố định width 50px nữa */
-            min-width: 40px; 
-            height: 50px;
-            padding: 0 10px; /* Thêm khoảng trống hai bên chữ */
-            
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 14px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            border-radius: 8px;
+            background: var(--primary-blue); color: white;
+            min-width: 40px; height: 50px; padding: 0 10px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 14px; font-weight: 500; cursor: pointer;
+            transition: all 0.3s ease; border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            
-            /* Đảm bảo chữ không bị xuống dòng bên trong ô */
             white-space: nowrap; 
         }
-        .lesson-num.wide-num {
-            padding: 0 20px;
-        }
-        .lesson-num:hover {
-            background: #333;
-        }
-        .lesson-num.active {
-            background: #ff9800 !important;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-        }
+        .lesson-num.wide-num { padding: 0 20px; }
+        .lesson-num:hover { background: #333; }
+        .lesson-num.active { background: #ff9800 !important; }
 
-        /* 4. Khu vực Video & Skills */
         .video-section { margin-top: 20px; display: none; text-align: center; }
-        
         .video-container {
             width: 100%; background: #000;
-            position: relative; padding-bottom: 56.25%; /* Tỷ lệ 16:9 */
-            height: 0; margin-bottom: 20px;
+            position: relative; padding-bottom: 56.25%; height: 0; margin-bottom: 20px;
         }
         .video-container iframe {
             position: absolute; top: 0; left: 0;
             width: 100%; height: 100%; border: none;
         }
 
-        /* 5. Nút Kỹ năng (3 cột như ảnh) */
         .skill-grid {
             display: grid; grid-template-columns: repeat(3, 1fr);
             gap: 10px; margin-bottom: 30px;
@@ -124,212 +96,176 @@
 </head>
 <body>
 
-    <nav id="main-nav" style="background-color: #005a96; border-bottom: 1px solid rgba(255,255,255,0.1);">
+    <nav id="main-nav">
         <a href="#" onclick="switchSource('ABEKA')" id="nav-abeka">ABEKA</a>
         <a href="#" onclick="switchSource('LITTLEFOX')" id="nav-littlefox">LITTLE FOX</a>
         <a href="#" onclick="switchSource('SINGLESTORY')" id="nav-singlestory">SINGLE STORY</a>
     </nav>
 
-    <nav id="top-nav"></nav>
-    
     <div class="main-content">
-        <h2 id="page-title">Welcome to </h2>
+        <h2 id="header-title">
+            <span id="page-title">Welcome</span>
+            <a href="#" id="btn-back" class="back-btn" style="display:none;" onclick="goBack()">← Back</a>
+        </h2>
         
         <div id="loading">Loading...</div>
 
         <div id="video-area" class="video-section">
-            <h3 id="current-lesson-name" style="text-align: left;">Day ..., Grade ...</h3>
+            <h3 id="current-lesson-name" style="text-align: left;">Lesson Detail</h3>
             <div class="video-container">
                 <div id="player-placeholder"></div>
             </div>
-            <div class="skill-grid" id="skill-list">
-                </div>
+            <div class="skill-grid" id="skill-list"></div>
         </div>
 
         <div id="lesson-container" class="lesson-grid"></div>
 
-        <div id="class-list" style="margin-top:20px;">
-            <p>The entire lecture series is organized by the date of study:</p>
+        <div id="class-list-section" style="margin-top:20px;">
+            <p id="list-intro">Select a Grade to start:</p>
             <ul id="class-links"></ul>
         </div>
     </div>
 
     <script>
-            <script>
-    const API_KEY = 'AIzaSyC8Pfnocm6rFoEuMv959m4NzkZUMyS_I20';
-    const FOLDER_MAP = {
-        'ABEKA': '1wkV7rBm47KjwtXrv3-0_ZOJ4f3BW1S2Y',
-        'LITTLEFOX': '19lKtrcn5wTCvPDqx6_pq5iMT9oYjZp2v', 
-        'SINGLESTORY': '1mg7mVfYXwRrbxiujLchd5oZOg8DUN1oh'
-    };
+        const API_KEY = 'AIzaSyC8Pfnocm6rFoEuMv959m4NzkZUMyS_I20';
+        const FOLDER_MAP = {
+            'ABEKA': '1wkV7rBm47KjwtXrv3-0_ZOJ4f3BW1S2Y',
+            'LITTLEFOX': '19lKtrcn5wTCvPDqx6_pq5iMT9oYjZp2v', 
+            'SINGLESTORY': '1mg7mVfYXwRrbxiujLchd5oZOg8DUN1oh'
+        };
 
-    let currentSource = 'ABEKA';
+        let historyStack = []; // Lưu lại vết để quay lại
+        let currentSourceID = '';
 
-    async function switchSource(sourceKey) {
-        currentSource = sourceKey;
-        document.querySelectorAll('#main-nav a').forEach(a => a.classList.remove('active'));
-        const activeNav = document.getElementById(`nav-${sourceKey.toLowerCase()}`);
-        if(activeNav) activeNav.classList.add('active');
-        await loadClasses(FOLDER_MAP[sourceKey]);
-    }
-
-    async function loadClasses(folderId) {
-        showLoading(true);
-        resetUI();
-        try {
-            const url = `https://www.googleapis.com/drive/v3/files?q='${folderId}'+in+parents+and+trashed=false&key=${API_KEY}`;
-            const response = await fetch(url);
-            const data = await response.json();
-            
-            if (data.error) {
-                document.getElementById('class-links').innerHTML = `<li style="color:red">Lỗi API: ${data.error.message}</li>`;
-                showLoading(false);
-                return;
-            }
-
-            if (!data.files || data.files.length === 0) {
-                document.getElementById('class-links').innerHTML = "<li>Không tìm thấy lớp nào.</li>";
-                showLoading(false);
-                return;
-            }
-
-            const classes = data.files.sort((a, b) => a.name.localeCompare(b.name, undefined, {numeric: true}));
-            const nav = document.getElementById('top-nav');
-            const list = document.getElementById('class-links');
-            
-            nav.innerHTML = '';
-            list.innerHTML = "";
-
-            classes.forEach((c, index) => {
-                const link = document.createElement('a');
-                link.href = "#";
-                link.innerText = c.name;
-                link.onclick = (e) => {
-                    e.preventDefault();
-                    selectClass(c.id, c.name);
-                };
-                nav.appendChild(link);
-                list.innerHTML += `<li><a href="#" onclick="event.preventDefault(); selectClass('${c.id}', '${c.name}')">${c.name}</a></li>`;
-            });
-            
-            document.getElementById('page-title').innerText = "Welcome to " + currentSource;
-
-            // TỰ ĐỘNG CHỌN LỚP ĐẦU TIÊN ĐỂ HIỆN Ô VUÔNG LUÔN
-            if (classes.length > 0) {
-                selectClass(classes[0].id, classes[0].name);
-            }
-
-        } catch (e) { 
-            console.error(e);
-            document.getElementById('class-links').innerHTML = `<li style="color:red">Lỗi kết nối: ${e.message}</li>`;
+        async function switchSource(sourceKey) {
+            historyStack = []; 
+            currentSourceID = FOLDER_MAP[sourceKey];
+            document.querySelectorAll('#main-nav a').forEach(a => a.classList.remove('active'));
+            document.getElementById(`nav-${sourceKey.toLowerCase()}`).classList.add('active');
+            await loadFolderContent(currentSourceID, "Welcome to " + sourceKey);
         }
-        showLoading(false);
-    }
 
-    async function selectClass(id, name) {
-        showLoading(true);
-        stopVideo();
-        updateNavActive(name);
-        // Ẩn danh sách chữ, hiện tiêu đề
-        document.getElementById('class-list').style.display = 'none';
-        document.getElementById('video-area').style.display = 'none';
-        document.getElementById('page-title').innerText = name + ":";
-        
-        try {
-            const url = `https://www.googleapis.com/drive/v3/files?q='${id}'+in+parents+and+trashed=false&key=${API_KEY}`;
-            const response = await fetch(url);
-            const data = await response.json();
-            
-            const container = document.getElementById('lesson-container');
-            if (!data.files || data.files.length === 0) {
-                container.innerHTML = "<p>Thư mục này chưa có bài học.</p>";
+        async function loadFolderContent(folderId, title, isSubFolder = false) {
+            showLoading(true);
+            if (!isSubFolder) {
+                document.getElementById('btn-back').style.display = 'none';
             } else {
-                const items = data.files.sort((a, b) => a.name.localeCompare(b.name, undefined, {numeric: true}));
-                container.innerHTML = items.map((l) => {
-                    const extraClass = l.name.length > 3 ? 'wide-num' : '';
-                    const action = l.mimeType === 'application/vnd.google-apps.folder' 
-                        ? `selectLesson('${l.id}', '${l.name}', '${name}', this)`
-                        : `playSingleFile('${l.id}', '${l.name}', '${name}', this)`;
+                document.getElementById('btn-back').style.display = 'block';
+            }
+
+            stopVideo();
+            document.getElementById('video-area').style.display = 'none';
+            document.getElementById('page-title').innerText = title;
+
+            try {
+                const url = `https://www.googleapis.com/drive/v3/files?q='${folderId}'+in+parents+and+trashed=false&key=${API_KEY}`;
+                const response = await fetch(url);
+                const data = await response.json();
+                
+                const container = document.getElementById('lesson-container');
+                const listSection = document.getElementById('class-list-section');
+                const listUl = document.getElementById('class-links');
+
+                if (!data.files || data.files.length === 0) {
+                    container.innerHTML = "<p>Folder is empty.</p>";
+                    listUl.innerHTML = "";
+                } else {
+                    const items = data.files.sort((a, b) => a.name.localeCompare(b.name, undefined, {numeric: true}));
                     
-                    return `<div class="lesson-num ${extraClass}" onclick="${action}">${l.name}</div>`;
-                }).join('');
-            }
-        } catch (e) { console.error(e); }
-        showLoading(false);
-    }
+                    // Hiển thị lưới ô vuông
+                    container.innerHTML = items.map((item) => {
+                        const isFolder = item.mimeType === 'application/vnd.google-apps.folder';
+                        const extraClass = item.name.length > 3 ? 'wide-num' : '';
+                        const action = isFolder 
+                            ? `openSubFolder('${item.id}', '${item.name}')`
+                            : `playSingleFile('${item.id}', '${item.name}')`;
+                        
+                        return `<div class="lesson-num ${extraClass}" onclick="${action}">${item.name}</div>`;
+                    }).join('');
 
-    async function selectLesson(folderId, lessonName, className, element) {
-        showLoading(true);
-        if (element) {
-            document.querySelectorAll('.lesson-num').forEach(el => el.classList.remove('active'));
-            element.classList.add('active');
+                    // Cập nhật danh sách link bên dưới (nếu ở cấp Grade)
+                    if (!isSubFolder) {
+                        listSection.style.display = 'block';
+                        listUl.innerHTML = items.map(item => 
+                            `<li><a href="#" onclick="event.preventDefault(); openSubFolder('${item.id}', '${item.name}')">${item.name}</a></li>`
+                        ).join('');
+                    } else {
+                        listSection.style.display = 'none';
+                    }
+                }
+            } catch (e) { console.error(e); }
+            showLoading(false);
         }
-        const skillList = document.getElementById('skill-list');
-        document.getElementById('current-lesson-name').innerText = `${lessonName}, ${className}`;
-        document.getElementById('video-area').style.display = 'block';
 
-        try {
-            const url = `https://www.googleapis.com/drive/v3/files?q='${folderId}'+in+parents+and+trashed=false&key=${API_KEY}`;
-            const response = await fetch(url);
-            const data = await response.json();
-            
-            if (data.files && data.files.length > 0) {
-                const skills = data.files.sort((a, b) => a.name.localeCompare(b.name));
-                skillList.innerHTML = skills.map((s, i) => `
-                    <button class="skill-btn ${i===0?'active':''}" onclick="playVideo('${s.id}', this)">
-                        ${s.name.split('.')[0]}
-                    </button>
-                `).join('');
-                playVideo(skills[0].id);
+        function openSubFolder(id, name) {
+            // Lưu id cha vào stack trước khi đi sâu vào
+            const currentTitle = document.getElementById('page-title').innerText;
+            // Tìm container hiện tại để lấy ID cha (hơi phức tạp nên ta lưu đơn giản)
+            historyStack.push({id: id, name: name}); 
+            loadFolderContent(id, name, true);
+        }
+
+        function goBack() {
+            historyStack.pop(); // Bỏ cái hiện tại
+            if (historyStack.length === 0) {
+                switchSource(document.querySelector('#main-nav a.active').innerText);
             } else {
-                skillList.innerHTML = "<p>Không tìm thấy video nào.</p>";
+                const prev = historyStack[historyStack.length - 1];
+                loadFolderContent(prev.id, prev.name, true);
             }
-        } catch (e) { console.error(e); }
-        showLoading(false);
-        document.getElementById('video-area').scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-
-    function playSingleFile(fileId, fileName, className, element) {
-        if (element) {
-            document.querySelectorAll('.lesson-num').forEach(el => el.classList.remove('active'));
-            element.classList.add('active');
         }
-        document.getElementById('current-lesson-name').innerText = fileName;
-        document.getElementById('video-area').style.display = 'block';
-        document.getElementById('skill-list').innerHTML = ""; 
-        playVideo(fileId);
-    }
 
-    function playVideo(fileId, btn) {
-        if(btn) {
-            document.querySelectorAll('.skill-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
+        async function playSingleFile(fileId, fileName) {
+            document.getElementById('current-lesson-name').innerText = fileName;
+            document.getElementById('video-area').style.display = 'block';
+            document.getElementById('skill-list').innerHTML = ""; 
+            playVideo(fileId);
+            document.getElementById('video-area').scrollIntoView({ behavior: 'smooth' });
         }
-        const player = document.getElementById('player-placeholder');
-        player.innerHTML = `<iframe src="https://drive.google.com/file/d/${fileId}/preview" allow="autoplay" allowfullscreen></iframe>`;
-    }
 
-    function updateNavActive(targetText) {
-        document.querySelectorAll('#top-nav a').forEach(link => {
-            link.classList.toggle('active', link.innerText.trim() === targetText.trim());
-        });
-    }
-    function showLoading(status) { document.getElementById('loading').style.display = status ? 'block' : 'none'; }
-    function resetUI() {
-        stopVideo();
-        document.getElementById('class-list').style.display = 'block';
-        document.getElementById('video-area').style.display = 'none';
-        document.getElementById('lesson-container').innerHTML = '';
-        document.getElementById('page-title').innerText = "";
-    }
-    function stopVideo() { 
-        const player = document.getElementById('player-placeholder');
-        if (player) player.innerHTML = ''; 
-    }
+        // Trường hợp click vào Lesson folder (cấp cuối cùng chứa các video)
+        async function openLessonFolder(folderId, lessonName) {
+            showLoading(true);
+            document.getElementById('current-lesson-name').innerText = lessonName;
+            document.getElementById('video-area').style.display = 'block';
+            const skillList = document.getElementById('skill-list');
 
-    // KHỞI CHẠY
-    switchSource('ABEKA');
-</script>
+            try {
+                const url = `https://www.googleapis.com/drive/v3/files?q='${folderId}'+in+parents+and+trashed=false&key=${API_KEY}`;
+                const response = await fetch(url);
+                const data = await response.json();
+                
+                if (data.files && data.files.length > 0) {
+                    const skills = data.files.sort((a, b) => a.name.localeCompare(b.name));
+                    skillList.innerHTML = skills.map((s, i) => `
+                        <button class="skill-btn ${i===0?'active':''}" onclick="playVideo('${s.id}', this)">
+                            ${s.name.split('.')[0]}
+                        </button>
+                    `).join('');
+                    playVideo(skills[0].id);
+                }
+            } catch (e) { console.error(e); }
+            showLoading(false);
+        }
+
+        function playVideo(fileId, btn) {
+            if(btn) {
+                document.querySelectorAll('.skill-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+            }
+            const player = document.getElementById('player-placeholder');
+            player.innerHTML = `<iframe src="https://drive.google.com/file/d/${fileId}/preview" allow="autoplay" allowfullscreen></iframe>`;
+        }
+
+        function showLoading(status) { document.getElementById('loading').style.display = status ? 'block' : 'none'; }
+        
+        function stopVideo() { 
+            const player = document.getElementById('player-placeholder');
+            if (player) player.innerHTML = ''; 
+        }
+
+        // Khởi tạo
+        switchSource('ABEKA');
     </script>
 </body>
 </html>
