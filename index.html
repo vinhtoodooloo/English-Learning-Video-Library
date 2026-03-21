@@ -3,80 +3,46 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>English Learning Library - o9o Style</title>
+    <title>English Learning Library - Fixed Tabs</title>
     <style>
         :root {
             --primary-blue: #0072bc;
             --dark-blue: #005a96;
             --light-bg: #f4f7f9;
-            --text-color: #333;
         }
 
-        body {
-            font-family: 'Segoe UI', Arial, sans-serif;
-            margin: 0; background-color: var(--light-bg);
-            color: var(--text-color);
-        }
+        body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; background-color: var(--light-bg); }
 
-        /* Nav chính */
-        .main-nav {
-            background-color: var(--primary-blue);
-            display: flex; justify-content: center;
-            padding: 0;
-        }
-        .main-nav a {
-            color: white; text-decoration: none; padding: 15px 25px;
-            font-weight: bold; text-transform: uppercase; font-size: 14px;
-        }
+        /* Menu chính */
+        .main-nav { background-color: var(--primary-blue); display: flex; justify-content: center; }
+        .main-nav a { color: white; text-decoration: none; padding: 15px 25px; font-weight: bold; text-transform: uppercase; font-size: 14px; }
         .main-nav a:hover, .main-nav a.active { background: var(--dark-blue); }
 
-        /* Nav Grade (Cấp 2) */
-        .sub-nav {
-            background-color: #e9ecef;
-            display: flex; justify-content: center;
-            flex-wrap: wrap; padding: 5px 0;
-            border-bottom: 1px solid #dee2e6;
-        }
-        .sub-nav a {
-            color: var(--primary-blue); text-decoration: none; padding: 8px 15px;
-            font-size: 13px; font-weight: 600; margin: 2px;
-            border-radius: 4px; transition: 0.2s;
-        }
+        /* Menu Grade */
+        .sub-nav { background-color: #e9ecef; display: flex; justify-content: center; flex-wrap: wrap; padding: 5px 0; border-bottom: 1px solid #dee2e6; min-height: 40px; }
+        .sub-nav a { color: var(--primary-blue); text-decoration: none; padding: 8px 15px; font-size: 13px; font-weight: 600; margin: 2px; border-radius: 4px; }
         .sub-nav a:hover, .sub-nav a.active { background: var(--primary-blue); color: white; }
 
-        .container { max-width: 1000px; margin: 20px auto; background: white; padding: 20px; box-shadow: 0 0 15px rgba(0,0,0,0.05); }
+        .container { max-width: 1000px; margin: 20px auto; background: white; padding: 20px; box-shadow: 0 0 15px rgba(0,0,0,0.05); min-height: 400px; }
 
-        /* Video Section */
-        .video-header { font-size: 18px; margin-bottom: 10px; font-weight: normal; }
+        .video-header { font-size: 18px; margin-bottom: 10px; }
         .video-wrapper { width: 100%; position: relative; padding-bottom: 56.25%; height: 0; background: #000; margin-bottom: 15px; }
         .video-wrapper iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
 
-        /* Skill Grid (3 cột giống o9o) */
         .skill-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 25px; }
-        .skill-btn { 
-            background: #f1f3f5; border: 1px solid #e9ecef; padding: 10px; 
-            text-align: left; cursor: pointer; border-radius: 4px; font-size: 14px; color: #666;
-        }
-        .skill-btn:hover { background: #e9ecef; }
-        .skill-btn.active { background: #007bff; color: white; border-color: #007bff; }
+        .skill-btn { background: #f1f3f5; border: 1px solid #e9ecef; padding: 10px; text-align: left; cursor: pointer; border-radius: 4px; font-size: 14px; }
+        .skill-btn.active { background: #007bff; color: white; }
 
-        /* Lesson Grid (Dưới cùng) */
-        .lesson-title { border-top: 1px solid #eee; padding-top: 20px; margin-top: 20px; font-size: 18px; }
         .lesson-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(45px, 1fr)); gap: 5px; margin-top: 15px; }
-        .lesson-box {
-            background: #007bff; color: white; height: 35px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 12px; cursor: pointer; border-radius: 3px; font-weight: bold;
-        }
-        .lesson-box:hover { background: #333; }
+        .lesson-box { background: #007bff; color: white; height: 35px; display: flex; align-items: center; justify-content: center; font-size: 12px; cursor: pointer; border-radius: 3px; font-weight: bold; }
         .lesson-box.active { background: #ffc107; color: #333; }
 
-        #loading { text-align: center; padding: 50px; display: none; font-style: italic; color: #888; }
+        #loading { text-align: center; padding: 50px; display: none; }
     </style>
 </head>
 <body>
 
-    <nav class="main-nav" id="main-menu">
+    <nav class="main-nav">
         <a href="#" onclick="changeSource('ABEKA')" id="nav-abeka">ABEKA</a>
         <a href="#" onclick="changeSource('LITTLEFOX')" id="nav-littlefox">LITTLE FOX</a>
         <a href="#" onclick="changeSource('SINGLESTORY')" id="nav-singlestory">SINGLE STORY</a>
@@ -86,17 +52,11 @@
 
     <div class="container">
         <div id="loading">Đang tải dữ liệu...</div>
-
         <div id="display-area" style="display:none;">
-            <div class="video-header" id="current-info">Ngày ..., lớp ...</div>
-            
-            <div class="video-wrapper">
-                <div id="player"></div>
-            </div>
-
+            <div class="video-header" id="current-info"></div>
+            <div class="video-wrapper"><div id="player"></div></div>
             <div class="skill-grid" id="skill-list"></div>
-
-            <div class="lesson-title" id="grid-title">Video bài giảng theo ngày học:</div>
+            <div style="border-top:1px solid #eee; padding-top:20px; font-weight:bold" id="grid-title"></div>
             <div class="lesson-grid" id="lesson-list"></div>
         </div>
     </div>
@@ -109,74 +69,93 @@
             'SINGLESTORY': '1mg7mVfYXwRrbxiujLchd5oZOg8DUN1oh'
         };
 
-        let currentSource = 'ABEKA';
-        let currentGradeName = '';
-
         async function changeSource(key) {
-            currentSource = key;
+            // 1. Reset toàn bộ giao diện cũ
+            resetDisplay();
+            
+            // 2. Cập nhật trạng thái menu chính
             document.querySelectorAll('.main-nav a').forEach(a => a.classList.remove('active'));
             document.getElementById(`nav-${key.toLowerCase()}`).classList.add('active');
             
-            const folderId = SOURCES[key];
-            await loadGrades(folderId);
+            // 3. Tải danh sách Grade mới
+            await loadGrades(SOURCES[key]);
+        }
+
+        function resetDisplay() {
+            document.getElementById('display-area').style.display = 'none';
+            document.getElementById('grade-menu').innerHTML = '';
+            document.getElementById('lesson-list').innerHTML = '';
+            document.getElementById('skill-list').innerHTML = '';
+            document.getElementById('player').innerHTML = '';
+            document.getElementById('current-info').innerText = '';
+            document.getElementById('grid-title').innerText = '';
         }
 
         async function loadGrades(folderId) {
             showLoading(true);
             try {
-                const url = `https://www.googleapis.com/drive/v3/files?q='${folderId}'+in+parents+and+trashed=false&key=${API_KEY}`;
-                const res = await fetch(url);
+                const res = await fetch(`https://www.googleapis.com/drive/v3/files?q='${folderId}'+in+parents+and+trashed=false&key=${API_KEY}`);
                 const data = await res.json();
-                const grades = data.files.sort((a,b) => a.name.localeCompare(b.name, undefined, {numeric: true}));
+                const grades = (data.files || []).sort((a,b) => a.name.localeCompare(b.name, undefined, {numeric: true}));
                 
                 const menu = document.getElementById('grade-menu');
-                menu.innerHTML = grades.map(g => `<a href="#" onclick="selectGrade('${g.id}', '${g.name}', this)">${g.name}</a>`).join('');
-                
-                if(grades.length > 0) selectGrade(grades[0].id, grades[0].name, menu.firstChild);
-            } catch (e) { console.error(e); }
+                if (grades.length > 0) {
+                    menu.innerHTML = grades.map(g => `<a href="#" onclick="selectGrade('${g.id}', '${g.name}', this)">${g.name}</a>`).join('');
+                    // Tự động chọn Grade đầu tiên
+                    selectGrade(grades[0].id, grades[0].name, menu.firstChild);
+                } else {
+                    menu.innerHTML = '<span style="padding:10px; color:#888">Không có thư mục con nào.</span>';
+                    showLoading(false);
+                }
+            } catch (e) { console.error(e); showLoading(false); }
         }
 
         async function selectGrade(id, name, el) {
             showLoading(true);
-            currentGradeName = name;
             document.querySelectorAll('.sub-nav a').forEach(a => a.classList.remove('active'));
             if(el) el.classList.add('active');
 
             try {
-                const url = `https://www.googleapis.com/drive/v3/files?q='${id}'+in+parents+and+trashed=false&key=${API_KEY}`;
-                const res = await fetch(url);
+                const res = await fetch(`https://www.googleapis.com/drive/v3/files?q='${id}'+in+parents+and+trashed=false&key=${API_KEY}`);
                 const data = await res.json();
-                const lessons = data.files.sort((a,b) => a.name.localeCompare(b.name, undefined, {numeric: true}));
+                const lessons = (data.files || []).sort((a,b) => a.name.localeCompare(b.name, undefined, {numeric: true}));
                 
                 const list = document.getElementById('lesson-list');
-                document.getElementById('grid-title').innerText = `Video bài giảng ${currentSource} ${name} theo ngày học:`;
-                list.innerHTML = lessons.map(l => `<div class="lesson-box" onclick="loadLesson('${l.id}', '${l.name}', this)">${l.name.replace(/\D/g,'')}</div>`).join('');
+                document.getElementById('grid-title').innerText = `Video bài giảng ${name}:`;
                 
-                if(lessons.length > 0) loadLesson(lessons[0].id, lessons[0].name, list.firstChild);
-            } catch (e) { console.error(e); }
+                if (lessons.length > 0) {
+                    list.innerHTML = lessons.map(l => `<div class="lesson-box" onclick="loadLesson('${l.id}', '${l.name}', '${name}', this)">${l.name.replace(/\D/g,'') || l.name}</div>`).join('');
+                    loadLesson(lessons[0].id, lessons[0].name, name, list.firstChild);
+                } else {
+                    list.innerHTML = '<p>Thư mục này trống.</p>';
+                    showLoading(false);
+                }
+            } catch (e) { console.error(e); showLoading(false); }
         }
 
-        async function loadLesson(id, name, el) {
+        async function loadLesson(id, name, gradeName, el) {
             document.querySelectorAll('.lesson-box').forEach(b => b.classList.remove('active'));
             if(el) el.classList.add('active');
             
             document.getElementById('display-area').style.display = 'block';
-            document.getElementById('current-info').innerText = `Ngày ${name.replace(/\D/g,'')}, lớp ${currentGradeName.replace(/\D/g,'')}`;
+            document.getElementById('current-info').innerText = `${gradeName} - Bài ${name.replace(/\D/g,'') || name}`;
 
             try {
-                const url = `https://www.googleapis.com/drive/v3/files?q='${id}'+in+parents+and+trashed=false&key=${API_KEY}`;
-                const res = await fetch(url);
+                const res = await fetch(`https://www.googleapis.com/drive/v3/files?q='${id}'+in+parents+and+trashed=false&key=${API_KEY}`);
                 const data = await res.json();
-                const skills = data.files.sort((a,b) => a.name.localeCompare(b.name));
+                const skills = (data.files || []).sort((a,b) => a.name.localeCompare(b.name));
                 
                 const skillGrid = document.getElementById('skill-list');
-                skillGrid.innerHTML = skills.map((s, i) => `
-                    <div class="skill-btn ${i===0?'active':''}" onclick="playVideo('${s.id}', this)">
-                        ${s.name.split('.')[0]}
-                    </div>
-                `).join('');
-                
-                if(skills.length > 0) playVideo(skills[0].id);
+                if (skills.length > 0) {
+                    skillGrid.innerHTML = skills.map((s, i) => `
+                        <div class="skill-btn ${i===0?'active':''}" onclick="playVideo('${s.id}', this)">
+                            ${s.name.split('.')[0]}
+                        </div>
+                    `).join('');
+                    playVideo(skills[0].id);
+                } else {
+                    skillGrid.innerHTML = '<p>Không tìm thấy video.</p>';
+                }
             } catch (e) { console.error(e); }
             showLoading(false);
         }
@@ -191,7 +170,7 @@
 
         function showLoading(s) { document.getElementById('loading').style.display = s ? 'block' : 'none'; }
 
-        // Khởi tạo mặc định
+        // Chạy lần đầu
         changeSource('ABEKA');
     </script>
 </body>
