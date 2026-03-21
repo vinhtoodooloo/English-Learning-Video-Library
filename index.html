@@ -155,165 +155,181 @@
     </div>
 
     <script>
-        const API_KEY = 'AIzaSyC8Pfnocm6rFoEuMv959m4NzkZUMyS_I20';
-        const FOLDER_MAP = {
-            'ABEKA': '1wkV7rBm47KjwtXrv3-0_ZOJ4f3BW1S2Y',
-            'LITTLEFOX': '19lKtrcn5wTCvPDqx6_pq5iMT9oYjZp2v', 
-            'SINGLESTORY': '1mg7mVfYXwRrbxiujLchd5oZOg8DUN1oh'
-        };
-    
-        let currentSource = 'ABEKA';
-    
-        async function switchSource(sourceKey) {
-            currentSource = sourceKey;
-            document.querySelectorAll('#main-nav a').forEach(a => a.classList.remove('active'));
-            const activeNav = document.getElementById(`nav-${sourceKey.toLowerCase()}`);
-            if(activeNav) activeNav.classList.add('active');
-            loadClasses(FOLDER_MAP[sourceKey]);
-        }
-    
-        async function loadClasses(folderId) {
-            showLoading(true);
-            resetUI();
-            try {
-                const url = `https://www.googleapis.com/drive/v3/files?q='${folderId}'+in+parents+and+trashed=false&key=${API_KEY}`;
-                const response = await fetch(url);
-                const data = await response.json();
-                
-                if (!data.files || data.files.length === 0) {
-                    document.getElementById('class-links').innerHTML = "<li>No classes found.</li>";
-                    return;
-                }
-    
-                const classes = data.files.sort((a, b) => a.name.localeCompare(b.name, undefined, {numeric: true}));
-                const nav = document.getElementById('top-nav');
-                const list = document.getElementById('class-links');
-                
-                nav.innerHTML = '';
-                list.innerHTML = "";
-    
-                classes.forEach(c => {
-                    const link = document.createElement('a');
-                    link.href = "#";
-                    link.innerText = c.name;
-                    link.onclick = (e) => {
-                        e.preventDefault();
-                        selectClass(c.id, c.name);
-                    };
-                    nav.appendChild(link);
-                    list.innerHTML += `<li><a href="#" onclick="event.preventDefault(); selectClass('${c.id}', '${c.name}')">${c.name}</a></li>`;
-                });
-                document.getElementById('page-title').innerText = "Welcome to " + currentSource;
-            } catch (e) { console.error(e); }
-            showLoading(false);
-        }
-    
-        async function selectClass(id, name) {
-            showLoading(true);
-            stopVideo();
-            updateNavActive(name);
-            document.getElementById('class-list').style.display = 'none';
-            document.getElementById('video-area').style.display = 'none';
-            document.getElementById('page-title').innerText = name + ":";
+            <script>
+    const API_KEY = 'AIzaSyC8Pfnocm6rFoEuMv959m4NzkZUMyS_I20';
+    const FOLDER_MAP = {
+        'ABEKA': '1wkV7rBm47KjwtXrv3-0_ZOJ4f3BW1S2Y',
+        'LITTLEFOX': '19lKtrcn5wTCvPDqx6_pq5iMT9oYjZp2v', 
+        'SINGLESTORY': '1mg7mVfYXwRrbxiujLchd5oZOg8DUN1oh'
+    };
+
+    let currentSource = 'ABEKA';
+
+    async function switchSource(sourceKey) {
+        currentSource = sourceKey;
+        document.querySelectorAll('#main-nav a').forEach(a => a.classList.remove('active'));
+        const activeNav = document.getElementById(`nav-${sourceKey.toLowerCase()}`);
+        if(activeNav) activeNav.classList.add('active');
+        await loadClasses(FOLDER_MAP[sourceKey]);
+    }
+
+    async function loadClasses(folderId) {
+        showLoading(true);
+        resetUI();
+        try {
+            const url = `https://www.googleapis.com/drive/v3/files?q='${folderId}'+in+parents+and+trashed=false&key=${API_KEY}`;
+            const response = await fetch(url);
+            const data = await response.json();
             
-            try {
-                // SỬA TẠI ĐÂY: Lấy cả folder và file để tránh bị trống lưới
-                const url = `https://www.googleapis.com/drive/v3/files?q='${id}'+in+parents+and+trashed=false&key=${API_KEY}`;
-                const response = await fetch(url);
-                const data = await response.json();
-                
-                const container = document.getElementById('lesson-container');
-                if (!data.files || data.files.length === 0) {
-                    container.innerHTML = "<p>No lessons found in this folder.</p>";
-                } else {
-                    const items = data.files.sort((a, b) => a.name.localeCompare(b.name, undefined, {numeric: true}));
-                    container.innerHTML = items.map((l) => {
-                        const extraClass = l.name.length > 3 ? 'wide-num' : '';
-                        // Nếu là folder thì gọi selectLesson, nếu là file thì playVideo luôn
-                        const action = l.mimeType === 'application/vnd.google-apps.folder' 
-                            ? `selectLesson('${l.id}', '${l.name}', '${name}', this)`
-                            : `playSingleFile('${l.id}', '${l.name}', '${name}', this)`;
-                        
-                        return `<div class="lesson-num ${extraClass}" onclick="${action}">${l.name}</div>`;
-                    }).join('');
-                }
-            } catch (e) { console.error(e); }
-            showLoading(false);
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-    
-        async function selectLesson(folderId, lessonName, className, element) {
-            showLoading(true);
-            stopVideo();
-            if (element) {
-                document.querySelectorAll('.lesson-num').forEach(el => el.classList.remove('active'));
-                element.classList.add('active');
+            if (data.error) {
+                document.getElementById('class-links').innerHTML = `<li style="color:red">Lỗi API: ${data.error.message}</li>`;
+                showLoading(false);
+                return;
             }
-            const skillList = document.getElementById('skill-list');
-            document.getElementById('current-lesson-name').innerText = `${lessonName}, ${className}`;
-            document.getElementById('video-area').style.display = 'block';
-    
-            try {
-                const url = `https://www.googleapis.com/drive/v3/files?q='${folderId}'+in+parents+and+trashed=false&key=${API_KEY}`;
-                const response = await fetch(url);
-                const data = await response.json();
-                
-                if (data.files && data.files.length > 0) {
-                    const skills = data.files.sort((a, b) => a.name.localeCompare(b.name));
-                    skillList.innerHTML = skills.map((s, i) => `
-                        <button class="skill-btn ${i===0?'active':''}" onclick="playVideo('${s.id}', this)">
-                            ${s.name.split('.')[0]}
-                        </button>
-                    `).join('');
-                    playVideo(skills[0].id);
-                } else {
-                    skillList.innerHTML = "<p>No videos found.</p>";
-                }
-            } catch (e) { console.error(e); }
-            showLoading(false);
-            document.getElementById('video-area').scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
-    
-        // Hàm bổ trợ nếu click thẳng vào file video ở lưới bài học
-        function playSingleFile(fileId, fileName, className, element) {
-            if (element) {
-                document.querySelectorAll('.lesson-num').forEach(el => el.classList.remove('active'));
-                element.classList.add('active');
+
+            if (!data.files || data.files.length === 0) {
+                document.getElementById('class-links').innerHTML = "<li>Không tìm thấy lớp nào.</li>";
+                showLoading(false);
+                return;
             }
-            document.getElementById('current-lesson-name').innerText = fileName;
-            document.getElementById('video-area').style.display = 'block';
-            document.getElementById('skill-list').innerHTML = ""; // Không có skill list vì là file đơn
-            playVideo(fileId);
-        }
-    
-        function playVideo(fileId, btn) {
-            if(btn) {
-                document.querySelectorAll('.skill-btn').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-            }
-            const player = document.getElementById('player-placeholder');
-            player.innerHTML = `<iframe src="https://drive.google.com/file/d/${fileId}/preview" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
-        }
-    
-        function updateNavActive(targetText) {
-            document.querySelectorAll('#top-nav a').forEach(link => {
-                link.classList.toggle('active', link.innerText.trim().toUpperCase() === targetText.trim().toUpperCase());
+
+            const classes = data.files.sort((a, b) => a.name.localeCompare(b.name, undefined, {numeric: true}));
+            const nav = document.getElementById('top-nav');
+            const list = document.getElementById('class-links');
+            
+            nav.innerHTML = '';
+            list.innerHTML = "";
+
+            classes.forEach((c, index) => {
+                const link = document.createElement('a');
+                link.href = "#";
+                link.innerText = c.name;
+                link.onclick = (e) => {
+                    e.preventDefault();
+                    selectClass(c.id, c.name);
+                };
+                nav.appendChild(link);
+                list.innerHTML += `<li><a href="#" onclick="event.preventDefault(); selectClass('${c.id}', '${c.name}')">${c.name}</a></li>`;
             });
+            
+            document.getElementById('page-title').innerText = "Welcome to " + currentSource;
+
+            // TỰ ĐỘNG CHỌN LỚP ĐẦU TIÊN ĐỂ HIỆN Ô VUÔNG LUÔN
+            if (classes.length > 0) {
+                selectClass(classes[0].id, classes[0].name);
+            }
+
+        } catch (e) { 
+            console.error(e);
+            document.getElementById('class-links').innerHTML = `<li style="color:red">Lỗi kết nối: ${e.message}</li>`;
         }
-        function showLoading(status) { document.getElementById('loading').style.display = status ? 'block' : 'none'; }
-        function resetUI() {
-            stopVideo();
-            document.getElementById('class-list').style.display = 'block';
-            document.getElementById('video-area').style.display = 'none';
-            document.getElementById('lesson-container').innerHTML = '';
-            document.getElementById('page-title').innerText = "";
+        showLoading(false);
+    }
+
+    async function selectClass(id, name) {
+        showLoading(true);
+        stopVideo();
+        updateNavActive(name);
+        // Ẩn danh sách chữ, hiện tiêu đề
+        document.getElementById('class-list').style.display = 'none';
+        document.getElementById('video-area').style.display = 'none';
+        document.getElementById('page-title').innerText = name + ":";
+        
+        try {
+            const url = `https://www.googleapis.com/drive/v3/files?q='${id}'+in+parents+and+trashed=false&key=${API_KEY}`;
+            const response = await fetch(url);
+            const data = await response.json();
+            
+            const container = document.getElementById('lesson-container');
+            if (!data.files || data.files.length === 0) {
+                container.innerHTML = "<p>Thư mục này chưa có bài học.</p>";
+            } else {
+                const items = data.files.sort((a, b) => a.name.localeCompare(b.name, undefined, {numeric: true}));
+                container.innerHTML = items.map((l) => {
+                    const extraClass = l.name.length > 3 ? 'wide-num' : '';
+                    const action = l.mimeType === 'application/vnd.google-apps.folder' 
+                        ? `selectLesson('${l.id}', '${l.name}', '${name}', this)`
+                        : `playSingleFile('${l.id}', '${l.name}', '${name}', this)`;
+                    
+                    return `<div class="lesson-num ${extraClass}" onclick="${action}">${l.name}</div>`;
+                }).join('');
+            }
+        } catch (e) { console.error(e); }
+        showLoading(false);
+    }
+
+    async function selectLesson(folderId, lessonName, className, element) {
+        showLoading(true);
+        if (element) {
+            document.querySelectorAll('.lesson-num').forEach(el => el.classList.remove('active'));
+            element.classList.add('active');
         }
-        function stopVideo() { 
-            const player = document.getElementById('player-placeholder');
-            if (player) player.innerHTML = ''; 
+        const skillList = document.getElementById('skill-list');
+        document.getElementById('current-lesson-name').innerText = `${lessonName}, ${className}`;
+        document.getElementById('video-area').style.display = 'block';
+
+        try {
+            const url = `https://www.googleapis.com/drive/v3/files?q='${folderId}'+in+parents+and+trashed=false&key=${API_KEY}`;
+            const response = await fetch(url);
+            const data = await response.json();
+            
+            if (data.files && data.files.length > 0) {
+                const skills = data.files.sort((a, b) => a.name.localeCompare(b.name));
+                skillList.innerHTML = skills.map((s, i) => `
+                    <button class="skill-btn ${i===0?'active':''}" onclick="playVideo('${s.id}', this)">
+                        ${s.name.split('.')[0]}
+                    </button>
+                `).join('');
+                playVideo(skills[0].id);
+            } else {
+                skillList.innerHTML = "<p>Không tìm thấy video nào.</p>";
+            }
+        } catch (e) { console.error(e); }
+        showLoading(false);
+        document.getElementById('video-area').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function playSingleFile(fileId, fileName, className, element) {
+        if (element) {
+            document.querySelectorAll('.lesson-num').forEach(el => el.classList.remove('active'));
+            element.classList.add('active');
         }
-    
-        switchSource('ABEKA');
+        document.getElementById('current-lesson-name').innerText = fileName;
+        document.getElementById('video-area').style.display = 'block';
+        document.getElementById('skill-list').innerHTML = ""; 
+        playVideo(fileId);
+    }
+
+    function playVideo(fileId, btn) {
+        if(btn) {
+            document.querySelectorAll('.skill-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+        }
+        const player = document.getElementById('player-placeholder');
+        player.innerHTML = `<iframe src="https://drive.google.com/file/d/${fileId}/preview" allow="autoplay" allowfullscreen></iframe>`;
+    }
+
+    function updateNavActive(targetText) {
+        document.querySelectorAll('#top-nav a').forEach(link => {
+            link.classList.toggle('active', link.innerText.trim() === targetText.trim());
+        });
+    }
+    function showLoading(status) { document.getElementById('loading').style.display = status ? 'block' : 'none'; }
+    function resetUI() {
+        stopVideo();
+        document.getElementById('class-list').style.display = 'block';
+        document.getElementById('video-area').style.display = 'none';
+        document.getElementById('lesson-container').innerHTML = '';
+        document.getElementById('page-title').innerText = "";
+    }
+    function stopVideo() { 
+        const player = document.getElementById('player-placeholder');
+        if (player) player.innerHTML = ''; 
+    }
+
+    // KHỞI CHẠY
+    switchSource('ABEKA');
+</script>
     </script>
 </body>
 </html>
