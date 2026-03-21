@@ -49,7 +49,8 @@
 
         h2 { border-bottom: 2px solid #eee; padding-bottom: 10px; font-size: 22px; }
 
-        .lesson-grid { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 30px; padding: 10px; }
+        /* Lưới bài học */
+        .lesson-grid { display: flex; flex-wrap: wrap; gap: 12px; margin: 20px 0; padding: 10px; }
         .lesson-num {
             background: var(--primary-blue); color: white;
             min-width: 40px; height: 50px; padding: 0 10px;
@@ -62,7 +63,8 @@
         .lesson-num:hover { background: #333; }
         .lesson-num.active { background: #ff9800 !important; box-shadow: 0 4px 8px rgba(0,0,0,0.2); }
 
-        .video-section { margin-top: 20px; display: none; text-align: center; }
+        /* Khu vực Video & Skills - Mặc định ẩn */
+        .video-section { margin-top: 20px; display: none; text-align: center; border-top: 2px solid #f1f1f1; padding-top: 20px; }
         .video-container {
             width: 100%; background: #000;
             position: relative; padding-bottom: 56.25%; height: 0; margin-bottom: 20px;
@@ -95,16 +97,15 @@
         <h2 id="page-title">Welcome</h2>
         <div id="loading">Loading...</div>
 
+        <div id="lesson-container" class="lesson-grid"></div>
+
         <div id="video-area" class="video-section">
-            <h3 id="current-lesson-name" style="text-align: left;">Lesson Name</h3>
+            <h3 id="current-lesson-name" style="text-align: left;">Lesson Details</h3>
             <div class="video-container"><div id="player-placeholder"></div></div>
             <div class="skill-grid" id="skill-list"></div>
         </div>
 
-        <div id="lesson-container" class="lesson-grid"></div>
-
         <div id="class-list-footer" style="margin-top:20px;">
-            <p>Select a grade above or from this list:</p>
             <ul id="class-links"></ul>
         </div>
     </div>
@@ -119,16 +120,11 @@
 
     let currentSource = 'ABEKA';
 
-    // Chuyển đổi giữa Abeka, LittleFox...
     async function switchSource(sourceKey) {
         currentSource = sourceKey;
-        // Dọn dẹp sạch sẽ dữ liệu cũ
         resetUI();
-        
-        // Cập nhật class Active cho menu chính
         document.querySelectorAll('.main-nav a').forEach(a => a.classList.remove('active'));
         document.getElementById(`nav-${sourceKey.toLowerCase()}`).classList.add('active');
-        
         await loadGrades(FOLDER_MAP[sourceKey]);
     }
 
@@ -141,29 +137,17 @@
             const grades = data.files.sort((a, b) => a.name.localeCompare(b.name, undefined, {numeric: true}));
 
             const nav = document.getElementById('top-nav');
-            const footerList = document.getElementById('class-links');
-            
             nav.innerHTML = '';
-            footerList.innerHTML = "";
-
-            grades.forEach((g, index) => {
+            
+            grades.forEach(g => {
                 const link = document.createElement('a');
-                link.href = "#";
-                link.innerText = g.name;
-                link.onclick = (e) => {
-                    e.preventDefault();
-                    selectGrade(g.id, g.name);
-                };
+                link.href = "#"; link.innerText = g.name;
+                link.onclick = (e) => { e.preventDefault(); selectGrade(g.id, g.name); };
                 nav.appendChild(link);
-                footerList.innerHTML += `<li><a href="#" onclick="event.preventDefault(); selectGrade('${g.id}', '${g.name}')">${g.name}</a></li>`;
             });
 
             document.getElementById('page-title').innerText = "Welcome to " + currentSource;
-
-            // Tự động chọn Grade đầu tiên
-            if (grades.length > 0) {
-                selectGrade(grades[0].id, grades[0].name);
-            }
+            if (grades.length > 0) selectGrade(grades[0].id, grades[0].name);
 
         } catch (e) { console.error(e); }
         showLoading(false);
@@ -171,11 +155,10 @@
 
     async function selectGrade(id, name) {
         showLoading(true);
+        // Khi đổi Grade, ẩn khu vực video cũ đi để hiện Lesson Grid mới
+        document.getElementById('video-area').style.display = 'none';
         stopVideo();
         updateGradeNavActive(name);
-        
-        document.getElementById('class-list-footer').style.display = 'none';
-        document.getElementById('video-area').style.display = 'none';
         document.getElementById('page-title').innerText = name + ":";
         
         try {
@@ -200,9 +183,9 @@
             element.classList.add('active');
         }
 
-        const skillList = document.getElementById('skill-list');
-        document.getElementById('current-lesson-name').innerText = `${lessonName}, ${gradeName}`;
+        // Chỉ khi bấm vào đây, video-area mới hiện lên
         document.getElementById('video-area').style.display = 'block';
+        document.getElementById('current-lesson-name').innerText = `${gradeName} - Bài ${lessonName}`;
 
         try {
             const url = `https://www.googleapis.com/drive/v3/files?q='${folderId}'+in+parents+and+trashed=false&key=${API_KEY}`;
@@ -210,6 +193,7 @@
             const data = await response.json();
             const skills = data.files.sort((a, b) => a.name.localeCompare(b.name));
 
+            const skillList = document.getElementById('skill-list');
             skillList.innerHTML = skills.map((s, i) => `
                 <button class="skill-btn ${i===0?'active':''}" onclick="playVideo('${s.id}', this)">
                     ${s.name.split('.')[0]}
@@ -219,6 +203,7 @@
             if(skills.length > 0) playVideo(skills[0].id);
         } catch (e) { console.error(e); }
         showLoading(false);
+        // Tự động cuộn xuống khu vực video để xem
         document.getElementById('video-area').scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 
@@ -227,8 +212,8 @@
             document.querySelectorAll('.skill-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
         }
-        const player = document.getElementById('player-placeholder');
-        player.innerHTML = `<iframe src="https://drive.google.com/file/d/${fileId}/preview?autoplay=1" allow="autoplay; fullscreen" allowfullscreen></iframe>`;
+        document.getElementById('player-placeholder').innerHTML = 
+            `<iframe src="https://drive.google.com/file/d/${fileId}/preview?autoplay=1" allow="autoplay; fullscreen" allowfullscreen></iframe>`;
     }
 
     function updateGradeNavActive(targetText) {
@@ -239,22 +224,13 @@
 
     function resetUI() {
         stopVideo();
-        document.getElementById('top-nav').innerHTML = '';
         document.getElementById('lesson-container').innerHTML = '';
-        document.getElementById('skill-list').innerHTML = '';
         document.getElementById('video-area').style.display = 'none';
-        document.getElementById('class-list-footer').style.display = 'block';
-        document.getElementById('page-title').innerText = "Loading...";
     }
 
-    function stopVideo() {
-        const player = document.getElementById('player-placeholder');
-        if (player) player.innerHTML = '';
-    }
-
+    function stopVideo() { document.getElementById('player-placeholder').innerHTML = ''; }
     function showLoading(status) { document.getElementById('loading').style.display = status ? 'block' : 'none'; }
 
-    // Chạy mặc định khi mở trang
     switchSource('ABEKA');
     </script>
 </body>
