@@ -285,7 +285,7 @@
 
         try {
             // Thay đổi dòng này trong hàm selectLesson:
-            const url = `https://www.googleapis.com/drive/v3/files?q='${folderId}'+in+parents+and+trashed=false&fields=files(id,name,mimeType)&key=${API_KEY}`;
+            const url = `https://www.googleapis.com/drive/v3/files?q='${folderId}'+in+parents+and+trashed=false&key=${API_KEY}`;
             const response = await fetch(url);
             const data = await response.json();
             if (!data.files) {
